@@ -106,7 +106,40 @@ function upsert(stmt, a) {
   });
 }
 
-function exportJson(db) {
+// Keywords that indicate a run event on the calendar
+const RUN_RE = /run|jog|5k|10k|tempo|interval|400m|800m|sprint|easy\s|long\s|speed\s+training/i;
+
+function fetchNextRun() {
+  try {
+    process.stdout.write('  Fetching Google Calendar for next run... ');
+    const now  = new Date().toISOString();
+    const soon = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+    const raw = execSync(
+      `composio execute GOOGLECALENDAR_EVENTS_LIST -d '{"calendarId":"primary","timeMin":"${now}","timeMax":"${soon}","singleEvents":true,"orderBy":"startTime","maxResults":100}'`,
+      { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }
+    );
+    const envelope = parseComposioOutput(raw);
+    const result   = resolveResult(envelope);
+    if (!result.successful) { console.log('not connected'); return null; }
+
+    const events = result.data?.items ?? result.data?.events ?? [];
+    const next   = events.find(e => RUN_RE.test(e.summary || ''));
+    if (!next) { console.log('none found'); return null; }
+
+    console.log(`"${next.summary}"`);
+    return {
+      title: next.summary,
+      start: next.start?.dateTime || next.start?.date,
+      end:   next.end?.dateTime   || next.end?.date,
+      description: next.description || null,
+    };
+  } catch (e) {
+    console.log(`skipped (${e.message.slice(0, 50)})`);
+    return null;
+  }
+}
+
+function exportJson(db, nextRun) {
   const rows = db.prepare('SELECT * FROM activities ORDER BY start_date DESC').all();
   const activities = rows.map(r => ({
     id: r.id,
@@ -136,8 +169,13 @@ function exportJson(db) {
   }));
 
   fs.mkdirSync(path.dirname(DATA_PATH), { recursive: true });
-  fs.writeFileSync(DATA_PATH, JSON.stringify({ generated_at: new Date().toISOString(), count: activities.length, activities }, null, 2));
-  console.log(`\n✓ Exported ${activities.length} activities → public/data.json`);
+  fs.writeFileSync(DATA_PATH, JSON.stringify({
+    generated_at: new Date().toISOString(),
+    count: activities.length,
+    next_run: nextRun,
+    activities,
+  }, null, 2));
+  console.log(`\n✓ Exported ${activities.length} activities + next_run → public/data.json`);
 }
 
 async function main() {
@@ -156,7 +194,8 @@ async function main() {
   }
 
   console.log(`\nTotal synced: ${total} activities`);
-  exportJson(db);
+  const nextRun = fetchNextRun();
+  exportJson(db, nextRun);
   db.close();
 }
 
