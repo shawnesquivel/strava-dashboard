@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Training Calendar</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#0d0d0d;color:#e0e0e0;min-height:100vh;padding:28px 20px}
+
+    /* header */
+    .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+    .header-left{display:flex;align-items:center;gap:10px}
+    .header-left h1{font-size:18px;font-weight:700;color:#fff}
+    .header-left p{font-size:12px;color:#555;margin-top:2px}
+
+    /* stats bar */
+    .stats{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:24px}
+    .stat{font-size:12px;color:#555}
+    .stat b{color:#ccc;font-weight:600}
+
+    /* month nav */
+    .month-nav{display:flex;align-items:center;gap:14px}
+    .month-nav h2{font-size:16px;font-weight:600;color:#fff;min-width:110px;text-align:center}
+    .nav-btn{background:none;border:1px solid #2a2a2a;color:#888;border-radius:6px;width:28px;height:28px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center}
+    .nav-btn:hover{border-color:#444;color:#ccc}
+
+    /* layout */
+    .main{display:grid;grid-template-columns:1fr;gap:16px}
+    @media(min-width:900px){.main{grid-template-columns:1fr 320px}}
+
+    /* calendar */
+    .calendar-wrap{flex:1}
+    .day-headers{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px}
+    .day-header{text-align:center;font-size:11px;font-weight:600;color:#444;padding:6px 0;text-transform:uppercase;letter-spacing:.04em}
+
+    .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+
+    .cal-cell{
+      background:#141414;border:1px solid #1e1e1e;border-radius:8px;
+      min-height:72px;padding:8px 7px 6px;cursor:pointer;
+      transition:border-color .12s,background .12s;
+      position:relative;
+    }
+    .cal-cell:hover{border-color:#333;background:#181818}
+    .cal-cell.selected{border-color:#fc5200!important;background:#1a1008}
+    .cal-cell.empty{background:transparent;border-color:transparent;cursor:default}
+    .cal-cell.empty:hover{background:transparent;border-color:transparent}
+    .cal-cell.today .day-num{color:#fc5200;font-weight:700}
+
+    .day-num{font-size:12px;color:#555;margin-bottom:5px;line-height:1}
+
+    .dots{display:flex;flex-wrap:wrap;gap:3px}
+    .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+    .dot-run  {background:#fc5200}
+    .dot-lift {background:#5882ff}
+    .dot-rehab{background:#00c896}
+    .dot-other{background:#888}
+
+    /* weekly total */
+    .week-total{
+      display:flex;align-items:center;justify-content:center;
+      background:#141414;border:1px solid #1e1e1e;border-radius:8px;
+      min-height:72px;font-size:11px;color:#333;writing-mode:vertical-rl;
+      padding:8px 4px;
+    }
+
+    /* detail panel */
+    .detail-panel{
+      background:#141414;border:1px solid #222;border-radius:10px;
+      padding:18px;position:sticky;top:20px;align-self:start;
+    }
+    .detail-panel h3{font-size:13px;font-weight:700;color:#fff;margin-bottom:4px}
+    .detail-panel .detail-date{font-size:11px;color:#555;margin-bottom:14px}
+    .detail-empty{font-size:13px;color:#333;text-align:center;padding:32px 0}
+
+    .activity-row{
+      padding:10px 12px;background:#1a1a1a;border:1px solid #242424;
+      border-radius:8px;margin-bottom:8px;
+    }
+    .activity-row:last-child{margin-bottom:0}
+    .activity-row.has-hr{border-left:3px solid rgba(0,200,150,.4)}
+
+    .act-title{font-size:14px;font-weight:600;color:#fff;margin-bottom:5px;display:flex;align-items:center;gap:6px}
+    .act-icon{font-size:15px}
+    .act-meta{display:flex;flex-wrap:wrap;gap:4px 12px}
+    .act-meta span{font-size:11px;color:#666}
+    .act-meta span b{color:#bbb;font-weight:500}
+
+    .hr-chip{
+      display:inline-flex;align-items:center;gap:4px;
+      font-size:10px;font-weight:600;color:rgba(0,200,150,.9);
+      background:rgba(0,200,150,.08);border:1px solid rgba(0,200,150,.15);
+      border-radius:4px;padding:1px 6px;margin-top:5px;
+    }
+
+    .badges{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+    .badge{font-size:10px;font-weight:600;padding:1px 6px;border-radius:10px}
+    .badge-pr  {background:rgba(255,200,0,.12);color:#ffc800}
+    .badge-ach {background:rgba(252,82,0,.12);color:#fc5200}
+    .badge-kudo{background:rgba(255,255,255,.06);color:#666}
+
+    /* legend */
+    .legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:20px}
+    .legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:#555}
+    .legend-dot{width:8px;height:8px;border-radius:50%}
+
+    /* month stats */
+    .month-stats{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+    .month-stat{font-size:11px;color:#444}
+    .month-stat b{color:#888;font-weight:600}
+
+    .loading{text-align:center;padding:60px;color:#333;font-size:14px}
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+      <rect width="32" height="32" rx="7" fill="#FC5200"/>
+      <path d="M12 23l4-8 4 8" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M16 15l3-5 3 5" stroke="#ffb89a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div>
+      <h1>Training Calendar</h1>
+      <p>Strava · WHOOP HR auto-linked by time overlap</p>
+    </div>
+  </div>
+  <div class="stats" id="global-stats"></div>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#fc5200"></div>Run</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#5882ff"></div>Lift</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#00c896"></div>Rehab / Other</div>
+  <div class="legend-item" style="gap:5px">
+    <div style="width:8px;height:8px;border-radius:2px;border-left:3px solid rgba(0,200,150,.5);background:#1a1a1a"></div>
+    WHOOP HR linked
+  </div>
+</div>
+
+<div class="main">
+  <div class="calendar-wrap" id="calendar-wrap">
+    <div class="loading">Loading activities…</div>
+  </div>
+  <div class="detail-panel" id="detail-panel">
+    <div class="detail-empty">Select a day</div>
+  </div>
+</div>
+
+<script>
+// ── WHOOP matching ────────────────────────────────────────────────────────────
+function overlapMs(a, b) {
+  const as = new Date(a.start_date).getTime(), ae = as + a.elapsed_time * 1000;
+  const bs = new Date(b.start_date).getTime(), be = bs + b.elapsed_time * 1000;
+  return Math.max(0, Math.min(ae, be) - Math.max(as, bs));
+}
+
+function buildWhoopMap(activities) {
+  // Returns Map<non-whoop-id, whoop-activity>
+  const whoops    = activities.filter(a => a.device_name === 'WHOOP');
+  const nonWhoops = activities.filter(a => a.device_name !== 'WHOOP');
+  const map = new Map();
+  const used = new Set();
+  for (const a of nonWhoops) {
+    let best = null, bestMs = 0;
+    for (const w of whoops) {
+      const ms = overlapMs(a, w);
+      if (ms > bestMs) { bestMs = ms; best = w; }
+    }
+    if (bestMs >= 30_000) { map.set(a.id, best); used.add(best.id); }
+  }
+  return { whoopMap: map, usedWhoopIds: used };
+}
+
+// ── date helpers ──────────────────────────────────────────────────────────────
+// Use start_date_local (local time) for calendar grouping — slice to YYYY-MM-DD
+function localDate(a) {
+  // start_date_local format: "2026-06-02T18:46:02Z" — the date part is always local
+  return (a.start_date_local || a.start_date).slice(0, 10);
+}
+
+function groupByDate(activities) {
+  const map = {};
+  for (const a of activities) {
+    const d = localDate(a);
+    (map[d] = map[d] || []).push(a);
+  }
+  return map;
+}
+
+// ── formatting ────────────────────────────────────────────────────────────────
+function fmtDist(m) { return m >= 1000 ? (m/1000).toFixed(2)+' km' : Math.round(m)+' m'; }
+function fmtTime(s) {
+  if (!s) return null;
+  const h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = s%60;
+  if (h) return `${h}h ${m}m`;
+  return `${m}:${String(sec).padStart(2,'0')}`;
+}
+function fmtPace(mps) {
+  if (!mps) return null;
+  const spk = 1000/mps, m = Math.floor(spk/60), s = Math.round(spk%60);
+  return `${m}:${String(s).padStart(2,'0')} /km`;
+}
+
+function sportIcon(a) {
+  if (a.sport_type === 'Run') return '🏃';
+  if (a.sport_type === 'WeightTraining') return a.name.includes('🐰') ? '🐰' : '🏋️';
+  return '🦶';
+}
+function dotClass(a) {
+  if (a.sport_type === 'Run') return 'dot-run';
+  if (a.sport_type === 'WeightTraining') return 'dot-lift';
+  return 'dot-rehab';
+}
+
+// ── calendar render ───────────────────────────────────────────────────────────
+let year, month, byDate, whoopMap, usedWhoopIds, selectedDate = null;
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAYS   = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+function renderCalendar() {
+  const wrap = document.getElementById('calendar-wrap');
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const firstDow = (new Date(year, month, 1).getDay() + 6) % 7; // 0=Mon
+
+  // Month stats
+  const monthKey = `${year}-${String(month+1).padStart(2,'0')}`;
+  const monthActivities = Object.entries(byDate)
+    .filter(([d]) => d.startsWith(monthKey))
+    .flatMap(([,acts]) => acts)
+    .filter(a => a.device_name !== 'WHOOP' || !usedWhoopIds.has(a.id)); // skip matched WHOOP duplicates
+
+  const totalDist = monthActivities.filter(a=>a.sport_type==='Run').reduce((s,a)=>s+a.distance,0);
+  const totalTime = monthActivities.reduce((s,a)=>s+a.moving_time,0);
+  const runCount  = monthActivities.filter(a=>a.sport_type==='Run').length;
+  const liftCount = monthActivities.filter(a=>a.sport_type==='WeightTraining').length;
+
+  let html = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+      <div class="month-nav">
+        <button class="nav-btn" onclick="changeMonth(-1)">‹</button>
+        <h2>${MONTHS[month]} ${year}</h2>
+        <button class="nav-btn" onclick="changeMonth(1)">›</button>
+      </div>
+      <div class="month-stats">
+        <div class="month-stat"><b>${runCount}</b> runs</div>
+        <div class="month-stat"><b>${liftCount}</b> lifts</div>
+        ${totalDist > 0 ? `<div class="month-stat"><b>${(totalDist/1000).toFixed(1)} km</b> running</div>` : ''}
+        ${totalTime > 0 ? `<div class="month-stat"><b>${fmtTime(totalTime)}</b> moving</div>` : ''}
+      </div>
+    </div>
+    <div class="day-headers">
+      ${DAYS.map(d=>`<div class="day-header">${d}</div>`).join('')}
+    </div>
+    <div class="cal-grid">`;
+
+  const todayStr = new Date().toISOString().slice(0,10);
+
+  // Empty leading cells
+  for (let i = 0; i < firstDow; i++) html += `<div class="cal-cell empty"></div>`;
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const acts = (byDate[dateStr] || []).filter(a => a.device_name !== 'WHOOP' || !usedWhoopIds.has(a.id));
+    const isToday = dateStr === todayStr;
+    const isSel   = dateStr === selectedDate;
+
+    html += `<div class="cal-cell${isToday?' today':''}${isSel?' selected':''}" onclick="selectDay('${dateStr}')">`;
+    html += `<div class="day-num">${d}</div>`;
+    if (acts.length) {
+      html += `<div class="dots">`;
+      for (const a of acts) html += `<div class="dot ${dotClass(a)}" title="${a.name}"></div>`;
+      html += `</div>`;
+    }
+    html += `</div>`;
+  }
+
+  html += `</div>`; // cal-grid
+  wrap.innerHTML = html;
+}
+
+function renderDetail(dateStr) {
+  const panel = document.getElementById('detail-panel');
+  const acts = (byDate[dateStr] || []).filter(a => a.device_name !== 'WHOOP' || !usedWhoopIds.has(a.id));
+
+  if (!acts.length) {
+    panel.innerHTML = `<div class="detail-empty">No activities on this day</div>`;
+    return;
+  }
+
+  const d = new Date(dateStr + 'T12:00:00Z');
+  const label = d.toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric', year:'numeric', timeZone:'UTC'});
+
+  let html = `<h3>${label}</h3><div class="detail-date">${acts.length} activit${acts.length>1?'ies':'y'}</div>`;
+
+  for (const a of acts) {
+    const whoop = whoopMap.get(a.id);
+    const hr = whoop || (a.has_heartrate ? a : null);
+
+    html += `<div class="activity-row${hr?' has-hr':''}">`;
+    html += `<div class="act-title"><span class="act-icon">${sportIcon(a)}</span>${a.name}</div>`;
+    html += `<div class="act-meta">`;
+    if (a.distance > 0)     html += `<span><b>${fmtDist(a.distance)}</b></span>`;
+    if (a.moving_time > 0)  html += `<span><b>${fmtTime(a.moving_time)}</b> moving</span>`;
+    if (a.average_speed > 0 && a.sport_type === 'Run') html += `<span><b>${fmtPace(a.average_speed)}</b></span>`;
+    if (a.total_elevation_gain > 0) html += `<span><b>↑${a.total_elevation_gain}m</b></span>`;
+    html += `<span style="color:#2a2a2a">·</span><span>${a.device_name || '—'}</span>`;
+    html += `</div>`;
+
+    if (hr) {
+      const src = whoop ? `WHOOP linked (${Math.round(overlapMs(a, whoop)/60000)}m overlap)` : 'WHOOP';
+      html += `<div class="hr-chip">❤️ ${hr.average_heartrate} avg · ${hr.max_heartrate} max · ${src}</div>`;
+    }
+
+    const badges = [
+      a.pr_count > 0          ? `<span class="badge badge-pr">${a.pr_count} PR</span>` : '',
+      a.achievement_count > 0 ? `<span class="badge badge-ach">${a.achievement_count} ach.</span>` : '',
+      a.kudos_count > 0       ? `<span class="badge badge-kudo">${a.kudos_count} kudos</span>` : '',
+    ].filter(Boolean);
+    if (badges.length) html += `<div class="badges">${badges.join('')}</div>`;
+
+    html += `</div>`; // activity-row
+  }
+
+  panel.innerHTML = html;
+}
+
+function selectDay(dateStr) {
+  selectedDate = dateStr;
+  renderCalendar();
+  renderDetail(dateStr);
+}
+
+function changeMonth(delta) {
+  month += delta;
+  if (month < 0)  { month = 11; year--; }
+  if (month > 11) { month = 0;  year++; }
+  selectedDate = null;
+  renderCalendar();
+  document.getElementById('detail-panel').innerHTML = `<div class="detail-empty">Select a day</div>`;
+}
+
+// ── global stats ──────────────────────────────────────────────────────────────
+function renderGlobalStats(activities) {
+  const main = activities.filter(a => a.device_name !== 'WHOOP' || !usedWhoopIds.has(a.id));
+  const totalDist = main.filter(a=>a.sport_type==='Run').reduce((s,a)=>s+a.distance,0);
+  const totalTime = main.reduce((s,a)=>s+a.moving_time,0);
+  const totalPRs  = main.reduce((s,a)=>s+a.pr_count,0);
+  document.getElementById('global-stats').innerHTML = [
+    `<div class="stat"><b>${(totalDist/1000).toFixed(1)} km</b> running</div>`,
+    `<div class="stat"><b>${main.length}</b> activities</div>`,
+    `<div class="stat"><b>${fmtTime(totalTime)}</b> total</div>`,
+    totalPRs ? `<div class="stat"><b>${totalPRs}</b> PRs</div>` : '',
+  ].filter(Boolean).join('');
+}
+
+// ── init ──────────────────────────────────────────────────────────────────────
+fetch('./data.json')
+  .then(r => r.json())
+  .then(({ activities }) => {
+    const { whoopMap: wm, usedWhoopIds: wi } = buildWhoopMap(activities);
+    whoopMap = wm; usedWhoopIds = wi;
+    byDate = groupByDate(activities);
+
+    // Start on most recent month with data
+    const latest = activities.reduce((best, a) =>
+      a.start_date > best ? a.start_date : best, '0000');
+    const d = new Date(latest);
+    year = d.getUTCFullYear(); month = d.getUTCMonth();
+
+    renderGlobalStats(activities);
+    renderCalendar();
+
+    // Auto-select most recent day
+    const latestDate = latest.slice(0,10);
+    selectDay(latestDate);
+  })
+  .catch(e => {
+    document.getElementById('calendar-wrap').innerHTML =
+      `<div class="loading" style="color:#fc5200">Failed to load data.json<br><small>${e.message}</small></div>`;
+  });
+</script>
+</body>
+</html>

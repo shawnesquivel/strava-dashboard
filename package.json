@@ -1,0 +1,12 @@
+{
+  "name": "strava-dashboard",
+  "version": "1.0.0",
+  "description": "Personal training dashboard — Strava + WHOOP",
+  "scripts": {
+    "fetch": "node scripts/fetch.js",
+    "dev": "npx serve public -l 3000"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.0.0"
+  }
+}
