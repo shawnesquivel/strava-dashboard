@@ -6,182 +6,251 @@
   <title>Training Calendar — Shawn</title>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#0d0d0d;color:#e0e0e0;min-height:100vh;padding:24px 20px 48px}
 
+    body{
+      font-family: Boathouse, "Segoe UI", "Helvetica Neue", -apple-system, system-ui,
+        BlinkMacSystemFont, Roboto, Arial, sans-serif,
+        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+      font-size:14px;
+      background:#0d0d0d;color:#e0e0e0;min-height:100vh;padding:22px 20px 56px;
+    }
     a{color:inherit;text-decoration:none}
     a:hover{text-decoration:underline}
+    button{font-family:inherit;cursor:pointer}
 
-    /* ── Header ─────────────────────────────────────────────────────────── */
-    .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+    /* ── Header ──────────────────────────────────────────────────────────── */
+    .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px}
     .header-left{display:flex;align-items:center;gap:10px}
     .header-left h1{font-size:18px;font-weight:700;color:#fff}
-    .header-left p{font-size:12px;color:#444;margin-top:2px}
-    .global-stats{display:flex;gap:16px;flex-wrap:wrap}
+    .header-meta{display:flex;align-items:center;gap:8px;margin-top:3px;flex-wrap:wrap}
+    .header-meta span{font-size:11px;color:#444}
+    .header-meta .dot{width:3px;height:3px;border-radius:50%;background:#333;display:inline-block}
+    .social-link{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#444;transition:color .12s}
+    .social-link:hover{color:#aaa;text-decoration:none}
+    .header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
     .gstat{font-size:12px;color:#444}
-    .gstat b{color:#aaa;font-weight:600}
+    .gstat b{color:#999;font-weight:600}
+
+    /* Run and Yap button */
+    .rny-trigger{
+      background:linear-gradient(135deg,#fc5200,#e03800);
+      border:none;color:#fff;border-radius:20px;
+      padding:7px 16px;font-size:12px;font-weight:600;
+      display:flex;align-items:center;gap:6px;
+      transition:opacity .12s,transform .1s;white-space:nowrap;
+    }
+    .rny-trigger:hover{opacity:.9;transform:translateY(-1px)}
+
+    /* ── Goals top row ───────────────────────────────────────────────────── */
+    .goals-top{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:10px}
+    @media(min-width:700px){.goals-top{grid-template-columns:1.4fr 1fr 1fr}}
+
+    .goal-card{
+      background:#141414;border:1px solid #1e1e1e;border-radius:10px;
+      padding:14px 16px;position:relative;overflow:hidden;
+    }
+    .goal-card.moby-dick{border-color:#fc5200;background:linear-gradient(135deg,#1a0c00,#141414)}
+    .goal-card.moby-dick::before{
+      content:'';position:absolute;top:0;left:0;right:0;height:2px;
+      background:linear-gradient(90deg,#fc5200,#ff8c00);
+    }
+
+    .goal-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+    .goal-label.moby{color:#fc5200}
+    .goal-label.urgent{color:#ffc800}
+    .goal-title{font-size:15px;font-weight:700;color:#fff;margin-bottom:3px;line-height:1.2}
+    .goal-detail{font-size:11px;color:#555;margin-bottom:10px}
+
+    .goal-deadline{font-size:11px;color:#444;display:flex;align-items:center;gap:5px;margin-bottom:8px}
+    .days-badge{
+      font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;
+      background:rgba(255,200,0,.1);color:#ffc800;
+    }
+    .days-badge.soon{background:rgba(252,82,0,.12);color:#fc5200}
+    .days-badge.past{background:rgba(255,255,255,.05);color:#444}
+
+    /* status badge */
+    .goal-status{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-top:4px}
+    .status-active{background:rgba(255,255,255,.05);color:#555}
+    .status-done{background:rgba(0,200,120,.12);color:#00c878}
+    .status-failed{background:rgba(255,80,80,.1);color:#ff5050}
+
+    .goal-result{font-size:13px;font-weight:700;color:#fff;margin-top:4px}
+    .goal-xlink{font-size:10px;color:#4f78ff;margin-top:4px;display:inline-flex;align-items:center;gap:3px}
+
+    /* progress bar inside goal card */
+    .goal-progress{margin-top:8px}
+    .goal-prog-label{display:flex;justify-content:space-between;font-size:10px;color:#444;margin-bottom:4px}
+    .goal-prog-label b{color:#777}
+    .prog-bar-bg{height:4px;background:#1e1e1e;border-radius:2px;overflow:hidden}
+    .prog-bar-fill{height:100%;border-radius:2px;background:#fc5200;transition:width .4s ease}
+    .prog-bar-fill.green{background:#00c896}
+
+    /* ── All goals grid ──────────────────────────────────────────────────── */
+    .goals-section-header{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:#333;margin:18px 0 8px}
+    .goals-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-bottom:20px}
+    .goals-grid .goal-card{padding:12px 14px}
+    .goals-grid .goal-title{font-size:13px}
+
+    /* ── PRs row ─────────────────────────────────────────────────────────── */
+    .prs-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:8px;margin-bottom:20px}
+    .pr-card{background:#141414;border:1px solid #1e1e1e;border-radius:9px;padding:12px 14px}
+    .pr-event{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:#444;margin-bottom:4px}
+    .pr-time{font-size:20px;font-weight:700;color:#fff;line-height:1;margin-bottom:2px}
+    .pr-pace{font-size:11px;color:#555;margin-bottom:6px}
+    .pr-race{font-size:11px;color:#444}
+    .pr-race a{color:#3d6aff}
+    .pr-race a:hover{color:#6b8fff}
 
     /* ── Kipchoge Meter ──────────────────────────────────────────────────── */
-    .kip-wrap{background:#141414;border:1px solid #1e1e1e;border-radius:10px;padding:16px 18px;margin-bottom:18px}
-    .kip-header{display:flex;align-items:center;gap:8px;margin-bottom:12px}
-    .kip-title{font-size:13px;font-weight:600;color:#ccc}
-    .kip-subtitle{font-size:11px;color:#444;margin-left:auto}
+    .kip-wrap{background:#141414;border:1px solid #1e1e1e;border-radius:10px;padding:14px 18px;margin-bottom:16px}
+    .kip-header{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+    .kip-score-row{display:flex;align-items:baseline;gap:6px}
+    .kip-score-big{font-size:26px;font-weight:700;color:#fc5200;line-height:1}
+    .kip-sub{font-size:11px;color:#444}
+    .kip-names{margin-left:6px}
+    .kip-title{font-size:12px;font-weight:600;color:#999}
+    .kip-best-lbl{font-size:10px;color:#444;margin-top:1px}
     .kip-info-btn{
-      background:none;border:1px solid #333;color:#555;border-radius:50%;
-      width:18px;height:18px;cursor:pointer;font-size:10px;font-weight:700;
+      background:rgba(255,255,255,.08);border:1px solid #555;color:#bbb;border-radius:50%;
+      width:20px;height:20px;font-size:11px;font-weight:700;
       display:flex;align-items:center;justify-content:center;flex-shrink:0;
-      transition:border-color .12s,color .12s;
+      transition:border-color .12s,color .12s,background .12s;margin-left:auto;
     }
-    .kip-info-btn:hover{border-color:#888;color:#ccc}
-    .kip-bar-area{position:relative;margin-bottom:8px}
-    .kip-bar-bg{height:10px;background:#1a1a1a;border-radius:5px;overflow:visible;position:relative}
-    .kip-bar-fill{height:100%;border-radius:5px;background:linear-gradient(90deg,#3b6bff,#fc5200);transition:width .6s ease}
-    .kip-marker{
-      position:absolute;top:-4px;width:18px;height:18px;background:#fc5200;
-      border:2px solid #0d0d0d;border-radius:50%;transform:translateX(-50%);
-      display:flex;align-items:center;justify-content:center;
-    }
-    .kip-marker::after{content:'You';position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-size:9px;color:#fc5200;white-space:nowrap;font-weight:700}
-    .kip-end-marker{
-      position:absolute;top:-4px;right:-9px;width:18px;height:18px;
-      background:#fff;border:2px solid #0d0d0d;border-radius:50%;
-      display:flex;align-items:center;justify-content:center;
-    }
-    .kip-end-marker::after{content:'🐐';position:absolute;top:-20px;right:-4px;font-size:12px}
-    .kip-labels{display:flex;justify-content:space-between;font-size:11px;color:#444;margin-top:10px}
-    .kip-score-big{font-size:28px;font-weight:700;color:#fc5200;line-height:1}
-    .kip-score-row{display:flex;align-items:baseline;gap:8px}
+    .kip-info-btn:hover{border-color:#fc5200;color:#fc5200;background:rgba(252,82,0,.1)}
+    .kip-bar-bg{height:9px;background:#1a1a1a;border-radius:5px;position:relative;overflow:visible}
+    .kip-bar-fill{height:100%;border-radius:5px;background:linear-gradient(90deg,#3b6bff,#fc5200)}
+    .kip-marker{position:absolute;top:-5px;width:19px;height:19px;background:#fc5200;border:2px solid #0d0d0d;border-radius:50%;transform:translateX(-50%)}
+    .kip-marker::after{content:'You';position:absolute;top:-17px;left:50%;transform:translateX(-50%);font-size:8px;color:#fc5200;white-space:nowrap;font-weight:700}
+    .kip-end{position:absolute;top:-5px;right:-9px;width:19px;height:19px;background:#fff;border:2px solid #0d0d0d;border-radius:50%}
+    .kip-end::after{content:'🐐';position:absolute;top:-19px;right:-3px;font-size:11px}
+    .kip-foot{display:flex;justify-content:space-between;font-size:10px;color:#333;margin-top:9px}
+    .kip-foot .you{color:#fc5200}
 
-    /* ── Legend ─────────────────────────────────────────────────────────── */
-    .legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:16px}
-    .legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:#444}
-    .leg-dot{width:8px;height:8px;border-radius:50%}
-    .leg-whoop{width:10px;height:10px;border-radius:2px;border-left:3px solid rgba(0,200,150,.6);background:#1a1a1a}
+    /* ── Mileage Bucket ──────────────────────────────────────────────────── */
+    .mileage-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin-bottom:18px}
+    .mileage-card{background:#141414;border:1px solid #1e1e1e;border-radius:9px;padding:12px 14px}
+    .mileage-label{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:#3a3a3a;margin-bottom:4px}
+    .mileage-val{font-size:22px;font-weight:700;color:#fff;line-height:1;margin-bottom:2px}
+    .mileage-sub{font-size:11px;color:#444;margin-bottom:7px}
+    .mileage-prog-bg{height:4px;background:#1a1a1a;border-radius:2px;overflow:hidden}
+    .mileage-prog-fill{height:100%;border-radius:2px;background:#fc5200;transition:width .4s}
+    .mileage-goal-txt{font-size:10px;color:#333;margin-top:4px;display:flex;justify-content:space-between}
+
+    /* ── Legend ──────────────────────────────────────────────────────────── */
+    .legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+    .leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:#444}
+    .leg-dot{width:7px;height:7px;border-radius:50%}
+    .leg-whoop{width:9px;height:9px;border-radius:2px;border-left:3px solid rgba(0,200,150,.6);background:#1a1a1a}
 
     /* ── Main layout ─────────────────────────────────────────────────────── */
-    .main{display:grid;grid-template-columns:1fr;gap:14px}
-    @media(min-width:860px){.main{grid-template-columns:1fr 310px}}
+    .main{display:grid;grid-template-columns:1fr;gap:12px}
+    @media(min-width:860px){.main{grid-template-columns:1fr 308px}}
 
     /* ── Calendar ────────────────────────────────────────────────────────── */
     .day-headers{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:3px}
-    .day-header{text-align:center;font-size:10px;font-weight:600;color:#333;padding:5px 0;text-transform:uppercase;letter-spacing:.05em}
+    .day-header{text-align:center;font-size:10px;font-weight:600;color:#2e2e2e;padding:4px 0;text-transform:uppercase;letter-spacing:.05em}
     .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
-    .cal-cell{
-      background:#141414;border:1px solid #1a1a1a;border-radius:7px;
-      min-height:64px;padding:7px 6px 5px;cursor:pointer;
-      transition:border-color .1s,background .1s;
-    }
+    .cal-cell{background:#141414;border:1px solid #191919;border-radius:6px;min-height:60px;padding:6px 5px 4px;cursor:pointer;transition:border-color .1s,background .1s}
     .cal-cell:hover{border-color:#2a2a2a;background:#171717}
     .cal-cell.selected{border-color:#fc5200!important;background:#1b1008}
     .cal-cell.empty{background:transparent;border-color:transparent;cursor:default;pointer-events:none}
     .cal-cell.today .day-num{color:#fc5200;font-weight:700}
-    .day-num{font-size:11px;color:#444;margin-bottom:4px;line-height:1}
-    .dots{display:flex;flex-wrap:wrap;gap:3px}
+    .day-num{font-size:10px;color:#333;margin-bottom:3px;line-height:1}
+    .dots{display:flex;flex-wrap:wrap;gap:2px}
     .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
     .dot-run{background:#fc5200}
     .dot-lift{background:#4f78ff}
     .dot-other{background:#00c896}
 
     /* ── Detail panel ────────────────────────────────────────────────────── */
-    .detail-panel{display:flex;flex-direction:column;gap:12px;position:sticky;top:20px;align-self:start}
-    .panel-card{background:#141414;border:1px solid #1e1e1e;border-radius:10px;padding:16px}
-    .panel-card h3{font-size:13px;font-weight:700;color:#fff;margin-bottom:3px}
-    .panel-card .sub{font-size:11px;color:#444;margin-bottom:12px}
-    .panel-empty{font-size:12px;color:#2a2a2a;text-align:center;padding:28px 0}
-
-    .activity-row{padding:10px 12px;background:#1a1a1a;border:1px solid #222;border-radius:7px;margin-bottom:7px}
+    .detail-panel{display:flex;flex-direction:column;gap:10px;position:sticky;top:18px;align-self:start}
+    .panel-card{background:#141414;border:1px solid #1e1e1e;border-radius:9px;padding:14px}
+    .panel-card h3{font-size:13px;font-weight:700;color:#fff;margin-bottom:2px}
+    .panel-card .sub{font-size:11px;color:#3a3a3a;margin-bottom:10px}
+    .panel-empty{font-size:12px;color:#222;text-align:center;padding:26px 0}
+    .activity-row{padding:9px 11px;background:#1a1a1a;border:1px solid #222;border-radius:7px;margin-bottom:6px}
     .activity-row:last-child{margin-bottom:0}
     .activity-row.has-hr{border-left:3px solid rgba(0,200,150,.4)}
     .act-title{font-size:13px;font-weight:600;color:#fff;margin-bottom:4px;display:flex;align-items:center;gap:5px}
     .act-meta{display:flex;flex-wrap:wrap;gap:3px 10px}
-    .act-meta span{font-size:11px;color:#555}
-    .act-meta span b{color:#aaa;font-weight:500}
-    .hr-chip{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;color:rgba(0,200,150,.85);background:rgba(0,200,150,.07);border:1px solid rgba(0,200,150,.15);border-radius:4px;padding:1px 5px;margin-top:4px}
+    .act-meta span{font-size:11px;color:#4a4a4a}
+    .act-meta span b{color:#999;font-weight:500}
+    .hr-chip{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;color:rgba(0,200,150,.85);background:rgba(0,200,150,.07);border:1px solid rgba(0,200,150,.15);border-radius:4px;padding:1px 5px;margin-top:3px}
     .badges{display:flex;flex-wrap:wrap;gap:3px;margin-top:4px}
     .badge{font-size:10px;font-weight:600;padding:1px 5px;border-radius:10px}
     .badge-pr{background:rgba(255,200,0,.12);color:#ffc800}
     .badge-ach{background:rgba(252,82,0,.12);color:#fc5200}
-    .badge-kudo{background:rgba(255,255,255,.05);color:#555}
+    .badge-kudo{background:rgba(255,255,255,.05);color:#444}
 
-    /* Next run card */
-    .next-run-card{background:#141414;border:1px solid #1e1e1e;border-radius:10px;padding:14px 16px}
-    .next-run-label{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:#00c896;margin-bottom:6px;display:flex;align-items:center;gap:5px}
-    .next-run-label::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:#00c896;animation:pulse 2s infinite}
-    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-    .next-run-title{font-size:14px;font-weight:600;color:#fff;margin-bottom:3px}
-    .next-run-time{font-size:12px;color:#555}
-    .next-run-desc{font-size:11px;color:#444;margin-top:5px;font-style:italic}
+    /* Next run */
+    .next-run-card{background:#141414;border:1px solid #1e1e1e;border-radius:9px;padding:12px 14px}
+    .next-run-label{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:#00c896;margin-bottom:5px;display:flex;align-items:center;gap:5px}
+    .next-run-label::before{content:'';display:inline-block;width:5px;height:5px;border-radius:50%;background:#00c896;animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+    .next-run-title{font-size:13px;font-weight:600;color:#fff;margin-bottom:2px}
+    .next-run-time{font-size:11px;color:#444}
 
-    /* ── Run with me ─────────────────────────────────────────────────────── */
-    .run-with-me{background:#141414;border:1px solid #1e1e1e;border-radius:10px;padding:20px 22px;margin-top:18px}
-    .rwm-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:4px}
-    .rwm-title{font-size:15px;font-weight:700;color:#fff}
-    .rwm-x-link{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#888;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:6px;padding:5px 10px;transition:border-color .12s}
-    .rwm-x-link:hover{border-color:#444;color:#ccc;text-decoration:none}
-    .rwm-sub{font-size:12px;color:#444;margin-bottom:14px}
-    .rwm-template-wrap{position:relative}
-    .rwm-template{
-      background:#0f0f0f;border:1px solid #222;border-radius:8px;
-      padding:14px 44px 14px 14px;font-size:13px;color:#bbb;line-height:1.6;
-      white-space:pre-wrap;font-family:inherit;
-    }
-    .rwm-template .placeholder{color:#fc5200;font-style:italic}
-    .copy-btn{
-      position:absolute;top:10px;right:10px;
-      background:#1a1a1a;border:1px solid #2a2a2a;color:#666;
-      border-radius:5px;padding:4px 8px;font-size:10px;cursor:pointer;
-      transition:all .12s;
-    }
-    .copy-btn:hover{border-color:#444;color:#ccc}
-    .copy-btn.copied{border-color:#00c896;color:#00c896}
-    .rwm-note{font-size:11px;color:#333;margin-top:8px}
-
-    /* month nav */
-    .month-nav{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap;gap:10px}
-    .month-nav h2{font-size:15px;font-weight:600;color:#fff;min-width:110px;text-align:center}
-    .nav-btn{background:none;border:1px solid #222;color:#666;border-radius:5px;width:26px;height:26px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:border-color .1s,color .1s}
-    .nav-btn:hover{border-color:#444;color:#ccc}
-    .month-stats-row{display:flex;gap:14px;flex-wrap:wrap;margin-left:auto}
-    .mstat{font-size:11px;color:#333}
-    .mstat b{color:#666;font-weight:600}
+    /* Month nav */
+    .month-nav{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+    .month-nav h2{font-size:14px;font-weight:600;color:#fff;min-width:108px;text-align:center}
+    .nav-btn{background:none;border:1px solid #1e1e1e;color:#555;border-radius:5px;width:24px;height:24px;font-size:12px;display:flex;align-items:center;justify-content:center;transition:border-color .1s,color .1s}
+    .nav-btn:hover{border-color:#3a3a3a;color:#ccc}
+    .mstats{display:flex;gap:12px;margin-left:auto;flex-wrap:wrap}
+    .mstat{font-size:10px;color:#2e2e2e}
+    .mstat b{color:#555;font-weight:600}
 
     /* ── Footer ──────────────────────────────────────────────────────────── */
-    footer{margin-top:32px;padding-top:18px;border-top:1px solid #1a1a1a;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
-    .footer-left{font-size:11px;color:#2e2e2e}
-    .footer-left a{color:#444}
-    .footer-left a:hover{color:#888}
-    .footer-links{display:flex;gap:14px}
-    .footer-links a{font-size:11px;color:#333;transition:color .1s}
-    .footer-links a:hover{color:#888;text-decoration:none}
+    footer{margin-top:36px;padding-top:16px;border-top:1px solid #181818;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+    .footer-left{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+    .footer-left span{font-size:11px;color:#272727}
+    .footer-left a{font-size:11px;color:#333;transition:color .1s}
+    .footer-left a:hover{color:#888;text-decoration:none}
+    .footer-right{display:flex;align-items:center;gap:10px}
+    .footer-right a{font-size:11px;color:#2e2e2e;display:flex;align-items:center;gap:5px;transition:color .1s}
+    .footer-right a:hover{color:#888;text-decoration:none}
+    .composio-logo{height:16px;filter:invert(.55);opacity:.7;transition:opacity .1s}
+    .composio-logo:hover{opacity:1}
 
-    /* ── Kipchoge Modal ──────────────────────────────────────────────────── */
-    .modal-backdrop{
-      position:fixed;inset:0;background:rgba(0,0,0,.75);
-      display:flex;align-items:center;justify-content:center;
-      z-index:100;opacity:0;pointer-events:none;transition:opacity .15s;padding:20px;
-    }
+    /* ── Run and Yap modal ───────────────────────────────────────────────── */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:200;opacity:0;pointer-events:none;transition:opacity .15s;padding:20px}
     .modal-backdrop.open{opacity:1;pointer-events:all}
-    .modal{
-      background:#161616;border:1px solid #2a2a2a;border-radius:12px;
-      padding:24px;max-width:440px;width:100%;max-height:90vh;overflow-y:auto;
-      transform:translateY(8px);transition:transform .15s;
-    }
+    .modal{background:#161616;border:1px solid #2a2a2a;border-radius:13px;padding:24px;max-width:400px;width:100%;max-height:90vh;overflow-y:auto;transform:translateY(10px);transition:transform .15s}
     .modal-backdrop.open .modal{transform:translateY(0)}
-    .modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-    .modal-header h3{font-size:15px;font-weight:700;color:#fff}
-    .modal-close{background:none;border:none;color:#555;font-size:20px;cursor:pointer;line-height:1;padding:0}
+    .modal-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px}
+    .modal-header h3{font-size:18px;font-weight:700;color:#fff}
+    .modal-close{background:none;border:none;color:#444;font-size:22px;cursor:pointer;line-height:1;padding:0;transition:color .1s}
     .modal-close:hover{color:#ccc}
-    .modal p{font-size:13px;color:#888;line-height:1.65;margin-bottom:10px}
-    .modal p:last-child{margin-bottom:0}
-    .modal strong{color:#ccc}
-    .modal-stat-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
-    .modal-stat{background:#1a1a1a;border:1px solid #222;border-radius:7px;padding:10px 12px}
-    .modal-stat .ml{font-size:10px;color:#444;margin-bottom:3px;text-transform:uppercase;letter-spacing:.05em}
-    .modal-stat .mv{font-size:16px;font-weight:700;color:#fff}
-    .modal-stat .ms{font-size:11px;color:#555;margin-top:1px}
-    .kip-levels{margin-top:12px}
-    .kip-level{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12px;color:#555}
-    .kip-level b{color:#888;min-width:50px;text-align:right}
-    .kip-level-bar{flex:1;height:4px;background:#1a1a1a;border-radius:2px;overflow:hidden}
+    .modal-sub{font-size:12px;color:#555;margin-bottom:14px}
+    .topics-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+    .topic-pill{font-size:11px;color:#888;background:#1e1e1e;border:1px solid #2a2a2a;border-radius:20px;padding:3px 10px}
+    .modal-step{margin-bottom:16px}
+    .step-num{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#444;margin-bottom:7px;display:flex;align-items:center;gap:6px}
+    .step-num::before{content:attr(data-n);display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#fc5200;color:#fff;font-size:10px;font-weight:700;flex-shrink:0}
+    .template-box{background:#0f0f0f;border:1px solid #222;border-radius:8px;padding:12px 40px 12px 12px;font-size:12px;color:#aaa;line-height:1.65;position:relative;white-space:pre-wrap}
+    .template-box .ph{color:#fc5200;font-style:italic}
+    .copy-btn{position:absolute;top:9px;right:9px;background:#1e1e1e;border:1px solid #2a2a2a;color:#555;border-radius:5px;padding:3px 8px;font-size:10px;transition:all .12s}
+    .copy-btn:hover{border-color:#444;color:#ccc}
+    .copy-btn.copied{border-color:#00c896;color:#00c896}
+    .dm-links{display:flex;flex-direction:column;gap:8px}
+    .dm-link{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#1a1a1a;border:1px solid #242424;border-radius:8px;font-size:13px;font-weight:600;color:#ccc;transition:border-color .12s,color .12s}
+    .dm-link:hover{border-color:#3a3a3a;color:#fff;text-decoration:none}
+    .dm-link svg{flex-shrink:0}
+    .dm-link .dm-handle{font-size:11px;color:#555;font-weight:400;margin-left:auto}
+
+    /* ── Kipchoge info modal ─────────────────────────────────────────────── */
+    #kip-modal .modal{max-width:420px}
+    #kip-modal p{font-size:12px;color:#777;line-height:1.65;margin-bottom:9px}
+    #kip-modal strong{color:#bbb}
+    .modal-stat-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+    .modal-stat{background:#1a1a1a;border:1px solid #222;border-radius:7px;padding:9px 12px}
+    .modal-stat .ml{font-size:9px;color:#3a3a3a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+    .modal-stat .mv{font-size:15px;font-weight:700;color:#fff}
+    .modal-stat .ms{font-size:10px;color:#444;margin-top:1px}
+    .kip-levels{margin-top:10px}
+    .kip-level{display:flex;align-items:center;gap:8px;padding:3px 0;font-size:11px;color:#555}
+    .kip-level b{color:#777;min-width:48px;text-align:right;font-weight:600}
+    .kip-level-bar{flex:1;height:3px;background:#1a1a1a;border-radius:2px;overflow:hidden}
     .kip-level-fill{height:100%;border-radius:2px;background:#fc5200}
   </style>
 </head>
@@ -190,214 +259,427 @@
 <!-- ── Header ──────────────────────────────────────────────────────────────── -->
 <div class="header">
   <div class="header-left">
-    <!-- Strava logo (segment icon: two overlapping chevrons on orange) -->
-    <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect width="38" height="38" rx="9" fill="#FC5200"/>
-      <path d="M6 31 L15 9 L24 31" fill="none" stroke="rgba(255,255,255,.38)" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round"/>
-      <path d="M16 31 L25 9 L34 31" fill="none" stroke="white" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round"/>
-    </svg>
+    <img src="./strava-logo.svg" width="38" height="38" style="border-radius:9px;display:block" alt="Strava"/>
     <div>
-      <h1>Training Calendar</h1>
-      <p>Strava · WHOOP HR linked by time overlap</p>
+      <h1>Shawn's Training</h1>
+      <div class="header-meta">
+        <span>📍 SF</span>
+        <span class="dot"></span>
+        <a class="social-link" href="https://x.com/shawnbuilds" target="_blank" rel="noopener">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          @shawnbuilds
+        </a>
+        <span class="dot"></span>
+        <a class="social-link" href="https://www.instagram.com/shawn.builds/" target="_blank" rel="noopener">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          @shawn.builds
+        </a>
+      </div>
     </div>
   </div>
-  <div class="global-stats" id="global-stats"></div>
+  <div class="header-right">
+    <div style="display:flex;gap:14px;flex-wrap:wrap" id="global-stats"></div>
+    <button class="rny-trigger" onclick="document.getElementById('rny-modal').classList.add('open')">
+      🏃 Run &amp; Yap in SF
+    </button>
+  </div>
 </div>
+
+<!-- ── Top challenges ───────────────────────────────────────────────────────── -->
+<div class="goals-section-header">Challenges</div>
+<div class="goals-top" id="goals-top"><!-- rendered by JS --></div>
+
+<!-- ── All goals grid ───────────────────────────────────────────────────────── -->
+<div class="goals-section-header">All Goals</div>
+<div class="goals-grid" id="goals-grid"><!-- rendered by JS --></div>
+
+<!-- ── PRs ──────────────────────────────────────────────────────────────────── -->
+<div class="goals-section-header">Personal Records</div>
+<div class="prs-row" id="prs-row"><!-- rendered by JS --></div>
+
+<!-- ── Mileage Bucket ───────────────────────────────────────────────────────── -->
+<div class="goals-section-header">Mileage</div>
+<div class="mileage-row" id="mileage-row"><!-- rendered by JS --></div>
 
 <!-- ── Kipchoge Meter ───────────────────────────────────────────────────────── -->
 <div class="kip-wrap" id="kip-wrap" style="display:none">
   <div class="kip-header">
     <div class="kip-score-row">
       <div class="kip-score-big" id="kip-score-pct">—</div>
-      <div style="font-size:12px;color:#555">of Kipchoge</div>
+      <div class="kip-sub">of Kipchoge</div>
     </div>
-    <div style="margin-left:10px">
+    <div class="kip-names">
       <div class="kip-title">Kipchoge Score</div>
-      <div style="font-size:11px;color:#444" id="kip-best-label">best recent run pace</div>
+      <div class="kip-best-lbl" id="kip-best-lbl">best recent run pace</div>
     </div>
-    <button class="kip-info-btn" id="kip-info-btn" title="How is this calculated?">i</button>
-    <div class="kip-subtitle" id="kip-subtitle"></div>
+    <button class="kip-info-btn" onclick="document.getElementById('kip-modal').classList.add('open')" title="How is this calculated?">i</button>
   </div>
-  <div class="kip-bar-area">
-    <div class="kip-bar-bg" id="kip-bar-bg">
-      <div class="kip-bar-fill" id="kip-bar-fill" style="width:0%"></div>
+  <div style="position:relative">
+    <div class="kip-bar-bg">
+      <div class="kip-bar-fill" id="kip-fill" style="width:0%"></div>
       <div class="kip-marker" id="kip-marker" style="left:0%"></div>
-      <div class="kip-end-marker"></div>
+      <div class="kip-end"></div>
     </div>
   </div>
-  <div class="kip-labels">
-    <span>0 m/s</span>
-    <span id="kip-your-pace" style="color:#fc5200"></span>
-    <span>Kipchoge 2:51 /km</span>
-  </div>
+  <div class="kip-foot"><span class="you" id="kip-your-pace"></span><span>Kipchoge 2:51 /km</span></div>
 </div>
 
-<!-- ── Legend ───────────────────────────────────────────────────────────────── -->
+<!-- ── Legend + Calendar ────────────────────────────────────────────────────── -->
 <div class="legend">
-  <div class="legend-item"><div class="leg-dot" style="background:#fc5200"></div>Run</div>
-  <div class="legend-item"><div class="leg-dot" style="background:#4f78ff"></div>Lift</div>
-  <div class="legend-item"><div class="leg-dot" style="background:#00c896"></div>Other</div>
-  <div class="legend-item"><div class="leg-whoop"></div>WHOOP HR linked</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#fc5200"></div>Run</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#4f78ff"></div>Lift</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#00c896"></div>Other</div>
+  <div class="leg-item"><div class="leg-whoop"></div>WHOOP HR linked</div>
 </div>
 
-<!-- ── Main ─────────────────────────────────────────────────────────────────── -->
 <div class="main">
-  <div id="calendar-wrap"><div style="text-align:center;padding:60px;color:#2a2a2a;font-size:13px">Loading…</div></div>
+  <div id="calendar-wrap"><div style="text-align:center;padding:50px;color:#222;font-size:13px">Loading…</div></div>
   <div class="detail-panel" id="detail-panel">
-    <div class="panel-card"><div class="panel-empty">Select a day to see activities</div></div>
+    <div class="panel-card"><div class="panel-empty">Select a day</div></div>
   </div>
-</div>
-
-<!-- ── Run With Me ──────────────────────────────────────────────────────────── -->
-<div class="run-with-me">
-  <div class="rwm-header">
-    <div class="rwm-title">🏃 Run with Shawn</div>
-    <a class="rwm-x-link" href="https://x.com/shawnesquivel" target="_blank" rel="noopener">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-      @shawnesquivel
-    </a>
-  </div>
-  <div class="rwm-sub">Bangkok-based runner. DM me on X and I'll add you to the calendar invite.</div>
-  <div class="rwm-template-wrap">
-    <div class="rwm-template" id="rwm-template">hey shawn, would love to go for a run on <span class="placeholder">[date]</span> with you. here is my email so your ai agent can add me to the google calendar invite! - <span class="placeholder">[name]</span>
-email: <span class="placeholder">[your@email.com]</span></div>
-    <button class="copy-btn" id="copy-btn" onclick="copyTemplate()">Copy</button>
-  </div>
-  <div class="rwm-note">Your request goes to an AI agent that checks the calendar, picks a time, and sends an invite.</div>
 </div>
 
 <!-- ── Footer ───────────────────────────────────────────────────────────────── -->
 <footer>
   <div class="footer-left">
-    Data refreshed <span id="footer-updated">—</span> ·
-    <a href="https://composio.dev/toolkits/strava" target="_blank" rel="noopener">Set this up yourself in Claude → composio.dev/toolkits/strava</a>
+    <span>Updated <span id="footer-updated">—</span></span>
+    <a href="https://composio.dev/toolkits/strava" target="_blank" rel="noopener">Set this up yourself → composio.dev/toolkits/strava</a>
   </div>
-  <div class="footer-links">
-    <a href="https://composio.dev/toolkits/strava" target="_blank" rel="noopener">Composio × Strava</a>
-    <a href="#" id="github-link" style="display:none">Source on GitHub</a>
+  <div class="footer-right">
+    <a href="https://composio.dev" target="_blank" rel="noopener">
+      <img src="./composio-logo.svg" class="composio-logo" alt="Composio"/>
+      Composio
+    </a>
+    <a href="#" id="github-link" style="display:none">GitHub</a>
   </div>
 </footer>
 
+<!-- ── Run and Yap Modal ────────────────────────────────────────────────────── -->
+<div class="modal-backdrop" id="rny-modal" onclick="closeBackdrop(event,'rny-modal')">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Run &amp; Yap 🏃💬</h3>
+      <button class="modal-close" onclick="document.getElementById('rny-modal').classList.remove('open')">×</button>
+    </div>
+    <div class="modal-sub">Good conversation, easy miles — SF Bay Area</div>
+    <div class="topics-row">
+      <span class="topic-pill">🎷 jazz</span>
+      <span class="topic-pill">🚀 startups</span>
+      <span class="topic-pill">🤖 ai agents</span>
+      <span class="topic-pill">🍁 canada</span>
+      <span class="topic-pill">🏀 basketball</span>
+    </div>
+    <div class="modal-step">
+      <div class="step-num" data-n="1">Copy this message</div>
+      <div class="template-box" id="rny-template">hey shawn, would love to go for a run and yap on <span class="ph">[date]</span> in SF. here's my email so your ai agent can add me to the calendar! — <span class="ph">[name]</span>
+email: <span class="ph">[your@email.com]</span><button class="copy-btn" id="rny-copy-btn" onclick="copyRny()">Copy</button></div>
+    </div>
+    <div class="modal-step">
+      <div class="step-num" data-n="2">DM me on</div>
+      <div class="dm-links">
+        <a class="dm-link" href="https://x.com/shawnbuilds" target="_blank" rel="noopener">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          X (Twitter)
+          <span class="dm-handle">@shawnbuilds</span>
+        </a>
+        <a class="dm-link" href="https://www.instagram.com/shawn.builds/" target="_blank" rel="noopener">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          Instagram
+          <span class="dm-handle">@shawn.builds</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ── Kipchoge Modal ────────────────────────────────────────────────────────── -->
-<div class="modal-backdrop" id="kip-modal" onclick="closeModal(event)">
+<div class="modal-backdrop" id="kip-modal" onclick="closeBackdrop(event,'kip-modal')">
   <div class="modal">
     <div class="modal-header">
       <h3>How is Kipchoge Score calculated?</h3>
       <button class="modal-close" onclick="document.getElementById('kip-modal').classList.remove('open')">×</button>
     </div>
-    <p>
-      <strong>Eliud Kipchoge</strong> set the marathon world record of <strong>2:00:35</strong> at the Berlin Marathon on September 25, 2022 — the first man ever to run a sub-2:01 marathon officially. His average pace: <strong>2:51 /km (5.83 m/s)</strong>.
-    </p>
-    <p>
-      Your <strong>Kipchoge Score</strong> = your fastest average pace (from runs ≥ 1 km) ÷ Kipchoge's WR pace × 100. It shows what percentage of his speed you're currently hitting.
-    </p>
-    <div class="modal-stat-row" id="modal-stats"></div>
-    <p>For context:</p>
+    <p><strong>Eliud Kipchoge</strong> set the marathon WR of <strong>2:00:35</strong> at Berlin 2022. Average pace: <strong>2:51 /km (5.83 m/s)</strong>.</p>
+    <p>Your score = <strong>your marathon speed</strong> (BMO 2025 chip: 5:42:46) ÷ Kipchoge's WR speed × 100. Marathon vs marathon — the fairest comparison.</p>
+    <div class="modal-stat-row" id="kip-modal-stats"></div>
     <div class="kip-levels">
       <div class="kip-level"><span>🚶 Walk</span><b>~24%</b><div class="kip-level-bar"><div class="kip-level-fill" style="width:24%"></div></div></div>
       <div class="kip-level"><span>🏃 Recreational</span><b>35–52%</b><div class="kip-level-bar"><div class="kip-level-fill" style="width:44%"></div></div></div>
       <div class="kip-level"><span>🏃 Intermediate</span><b>52–68%</b><div class="kip-level-bar"><div class="kip-level-fill" style="width:60%"></div></div></div>
       <div class="kip-level"><span>🏃 Advanced</span><b>68–80%</b><div class="kip-level-bar"><div class="kip-level-fill" style="width:74%"></div></div></div>
       <div class="kip-level"><span>🏅 Sub-2:30 marathon</span><b>80–95%</b><div class="kip-level-bar"><div class="kip-level-fill" style="width:87%"></div></div></div>
-      <div class="kip-level"><span>🐐 Kipchoge</span><b>100%</b><div class="kip-level-bar"><div class="kip-level-fill" style="width:100%;background:white"></div></div></div>
+      <div class="kip-level"><span>🐐 Kipchoge</span><b>100%</b><div class="kip-level-bar"><div class="kip-level-fill" style="width:100%;background:#fff"></div></div></div>
     </div>
-    <p style="margin-top:12px;font-size:11px;color:#333">
-      We only use runs ≥ 1 km to exclude warm-up fragments and GPS glitches. The score reflects your best recent effort, not a race PR.
-    </p>
   </div>
 </div>
 
 <script>
-// ── Config ────────────────────────────────────────────────────────────────────
-const GITHUB_URL = ''; // paste your GitHub URL after publishing
+// ════════════════════════════════════════════════════════════════════════
+//  CONFIG — update these when your status changes
+//  status:  'active' | 'done' | 'failed'
+//  result:  your actual result (fill in when done, e.g. '19:42')
+//  xPostUrl: link to your accountability post on X (optional)
+// ════════════════════════════════════════════════════════════════════════
+const GOALS = [
+  {
+    id: 'half_marathon',
+    mobyDick: true,
+    title: 'Half Marathon 1:56:02',
+    detail: '5:30 /km · the year\'s Moby Dick',
+    deadline: '2026-12-31',
+    status: 'active',   // ← change me
+    result: null,
+    xPostUrl: null,
+  },
+  {
+    id: 'rehab_june',
+    title: '30 Hevy Days in June',
+    detail: 'Foot rehab · 1 session/day',
+    deadline: '2026-06-30',
+    status: 'active',   // ← change me
+    autoProgress: true, // computed from Strava data
+    result: null,
+    xPostUrl: null,
+  },
+  {
+    id: '10km_pain_free',
+    title: 'Pain-free 10 km',
+    detail: 'First clean 10 km post-injury',
+    deadline: '2026-07-31',
+    status: 'active',   // ← change me
+    result: null,
+    xPostUrl: null,
+  },
+  {
+    id: '10km_55',
+    title: '10 km in 55:00',
+    detail: '5:30 /km · stepping stone to HM goal',
+    deadline: '2026-08-31',
+    status: 'active',   // ← change me
+    result: null,
+    xPostUrl: null,
+  },
+  {
+    id: 'sub20_5km',
+    title: 'Sub-20 min 5 km',
+    detail: '3:59 /km',
+    deadline: '2026-09-30',
+    status: 'active',   // ← change me
+    result: null,
+    xPostUrl: null,
+  },
+  {
+    id: 'sub6_mile',
+    title: 'Sub-6 min Mile',
+    detail: '3:44 /km',
+    deadline: '2026-12-31',
+    status: 'active',   // ← change me
+    result: null,
+    xPostUrl: null,
+  },
+];
 
-// ── Kipchoge constants ────────────────────────────────────────────────────────
-const KIP_SPEED_MS = 5.832; // Berlin 2022 WR 2:00:35 → 42195m / 7235s
+const PRS = [
+  {
+    event: 'Marathon',
+    time: '5:42:46',
+    pace: '8:07 /km',
+    race: 'BMO Vancouver',
+    date: 'May 4, 2025',
+    link: 'https://bmovanmarathon.ca/results-2025',
+  },
+  {
+    event: 'Half Marathon',
+    time: '2:11:47',
+    pace: '6:04 /km',
+    race: 'Bangkok Midnight Marathon',
+    date: 'Dec 22, 2024',
+    link: null,
+  },
+  {
+    event: '10 km',
+    time: '1:04:45',
+    pace: '6:28 /km',
+    race: 'Sun Run Vancouver',
+    date: 'Jul 18, 2024',
+    link: null,
+  },
+  {
+    event: '5 km',
+    time: '~22:00',
+    pace: '4:17 /km',
+    race: 'Training (6×800m)',
+    date: 'Apr 9, 2025',
+    link: null,
+    note: 'interval workout',
+  },
+];
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-function fmtDist(m){ return m>=1000?(m/1000).toFixed(2)+' km':Math.round(m)+' m' }
-function fmtTime(s){
-  if(!s)return null;
-  const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sc=s%60;
-  return h?`${h}h ${m}m`:`${m}:${String(sc).padStart(2,'0')}`;
-}
-function fmtPace(mps){
-  if(!mps)return null;
-  const spk=1000/mps,m=Math.floor(spk/60),s=Math.round(spk%60);
-  return `${m}:${String(s).padStart(2,'0')} /km`;
-}
-function sportIcon(a){
-  if(a.sport_type==='Run')return'🏃';
-  if(a.sport_type==='WeightTraining')return a.name.includes('🐰')?'🐰':'🏋️';
-  return'🦶';
-}
-function dotClass(a){
-  if(a.sport_type==='Run')return'dot-run';
-  if(a.sport_type==='WeightTraining')return'dot-lift';
-  return'dot-other';
-}
-function localDate(a){ return(a.start_date_local||a.start_date).slice(0,10) }
-function groupByDate(acts){
-  const m={};
-  for(const a of acts){ const d=localDate(a); (m[d]=m[d]||[]).push(a); }
-  return m;
-}
-
-// ── WHOOP matching ────────────────────────────────────────────────────────────
-function overlapMs(a,b){
-  const as=new Date(a.start_date).getTime(),ae=as+a.elapsed_time*1000;
-  const bs=new Date(b.start_date).getTime(),be=bs+b.elapsed_time*1000;
-  return Math.max(0,Math.min(ae,be)-Math.max(as,bs));
-}
-function buildWhoopMap(acts){
-  const whoops=acts.filter(a=>a.device_name==='WHOOP');
-  const nonW=acts.filter(a=>a.device_name!=='WHOOP');
-  const map=new Map(),used=new Set();
-  for(const a of nonW){
-    let best=null,bestMs=0;
-    for(const w of whoops){ const ms=overlapMs(a,w); if(ms>bestMs){bestMs=ms;best=w;} }
-    if(bestMs>=30_000){ map.set(a.id,best); used.add(best.id); }
-  }
-  return{whoopMap:map,usedWhoopIds:used};
-}
+const GITHUB_URL = ''; // paste GitHub URL after publishing
 
 // ── Kipchoge ──────────────────────────────────────────────────────────────────
-function computeKipchoge(acts){
-  const runs=acts.filter(a=>a.sport_type==='Run'&&a.distance>=1000&&a.average_speed>0);
-  if(!runs.length)return null;
-  const best=runs.reduce((b,a)=>a.average_speed>b.average_speed?a:b);
-  return{ score:(best.average_speed/KIP_SPEED_MS)*100, speed:best.average_speed, activity:best };
+// Comparison is marathon vs marathon: your BMO 2025 result vs Kipchoge's Berlin 2022 WR
+const KIP_SPEED = 5.832;   // 42195m / 7235s (2:00:35)
+const MY_MARATHON_SPEED = 42195 / 20566; // 5:42:46 chip → ~2.051 m/s
+function computeKipchoge() {
+  return {
+    score: (MY_MARATHON_SPEED / KIP_SPEED) * 100,
+    speed: MY_MARATHON_SPEED,
+    label: 'BMO Marathon 2025',
+    detail: '5:42:46 chip · 42.195 km',
+  };
 }
-function renderKipchoge(kip){
-  if(!kip)return;
-  const pct=Math.min(kip.score,100);
+
+// ── Mileage Bucket ────────────────────────────────────────────────────────────
+const WEEKLY_GOAL_KM = 10;
+function computeMileage(acts) {
+  // Exclude matched WHOOP duplicates
+  const runs = acts.filter(a =>
+    a.sport_type === 'Run' &&
+    !(a.device_name === 'WHOOP' && usedWhoopIds.has(a.id))
+  );
+  const now = new Date();
+  const dow = now.getUTCDay();
+  const daysToMon = dow === 0 ? -6 : 1 - dow;
+  const weekStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + daysToMon));
+  const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+  const fourWeeksAgo = new Date(now.getTime() - 28 * 86400000);
+
+  let thisWeek = 0, thisMonth = 0, fourWeek = 0;
+  for (const r of runs) {
+    const d = new Date(r.start_date), km = r.distance / 1000;
+    if (d >= weekStart) thisWeek += km;
+    if (d >= monthStart) thisMonth += km;
+    if (d >= fourWeeksAgo) fourWeek += km;
+  }
+  return { thisWeek, thisMonth, weeklyAvg: fourWeek / 4 };
+}
+function renderMileage(acts) {
+  const { thisWeek, thisMonth, weeklyAvg } = computeMileage(acts);
+  const weekPct = Math.min((thisWeek / WEEKLY_GOAL_KM) * 100, 100);
+  document.getElementById('mileage-row').innerHTML = `
+    <div class="mileage-card">
+      <div class="mileage-label">This Week</div>
+      <div class="mileage-val">${thisWeek.toFixed(1)} <span style="font-size:13px;color:#555">km</span></div>
+      <div class="mileage-sub">of ${WEEKLY_GOAL_KM} km weekly goal</div>
+      <div class="mileage-prog-bg"><div class="mileage-prog-fill" style="width:${weekPct}%"></div></div>
+      <div class="mileage-goal-txt"><span>${weekPct.toFixed(0)}%</span><span>${(WEEKLY_GOAL_KM - thisWeek).toFixed(1)} km to go</span></div>
+    </div>
+    <div class="mileage-card">
+      <div class="mileage-label">This Month</div>
+      <div class="mileage-val">${thisMonth.toFixed(1)} <span style="font-size:13px;color:#555">km</span></div>
+      <div class="mileage-sub">running (no duplicates)</div>
+    </div>
+    <div class="mileage-card">
+      <div class="mileage-label">4-Week Avg</div>
+      <div class="mileage-val">${weeklyAvg.toFixed(1)} <span style="font-size:13px;color:#555">km</span></div>
+      <div class="mileage-sub">per week</div>
+    </div>`;
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function fmtPace(mps){const s=1000/mps,m=Math.floor(s/60),sc=Math.round(s%60);return`${m}:${String(sc).padStart(2,'0')} /km`}
+function fmtDist(m){return m>=1000?(m/1000).toFixed(2)+' km':Math.round(m)+' m'}
+function fmtTime(s){if(!s)return null;const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sc=s%60;return h?`${h}h ${m}m`:`${m}:${String(sc).padStart(2,'0')}`}
+function sportIcon(a){if(a.sport_type==='Run')return'🏃';if(a.sport_type==='WeightTraining')return a.name.includes('🐰')?'🐰':'🏋️';return'🦶'}
+function dotClass(a){if(a.sport_type==='Run')return'dot-run';if(a.sport_type==='WeightTraining')return'dot-lift';return'dot-other'}
+function localDate(a){return(a.start_date_local||a.start_date).slice(0,10)}
+function groupByDate(acts){const m={};for(const a of acts){const d=localDate(a);(m[d]=m[d]||[]).push(a);}return m}
+function daysUntil(ds){return Math.ceil((new Date(ds+'T00:00:00Z')-Date.now())/86400000)}
+
+// ── WHOOP matching ────────────────────────────────────────────────────────────
+function overlapMs(a,b){const as=new Date(a.start_date).getTime(),ae=as+a.elapsed_time*1000,bs=new Date(b.start_date).getTime(),be=bs+b.elapsed_time*1000;return Math.max(0,Math.min(ae,be)-Math.max(as,bs))}
+function buildWhoopMap(acts){const w=acts.filter(a=>a.device_name==='WHOOP'),nw=acts.filter(a=>a.device_name!=='WHOOP'),map=new Map(),used=new Set();for(const a of nw){let best=null,bms=0;for(const wh of w){const ms=overlapMs(a,wh);if(ms>bms){bms=ms;best=wh;}}if(bms>=30000){map.set(a.id,best);used.add(best.id);}}return{whoopMap:map,usedWhoopIds:used}}
+
+// ── Goals rendering ───────────────────────────────────────────────────────────
+function rehabProgress(acts) {
+  const days = new Set(acts
+    .filter(a => a.device_name==='Hevy' && (a.start_date_local||a.start_date).startsWith('2026-06'))
+    .map(a => (a.start_date_local||a.start_date).slice(0,10)));
+  return days.size;
+}
+
+function goalStatusHtml(g) {
+  if (g.status==='done') return `<span class="goal-status status-done">✓ Done</span>`;
+  if (g.status==='failed') return `<span class="goal-status status-failed">✗ Failed</span>`;
+  return `<span class="goal-status status-active">● Active</span>`;
+}
+
+function goalCard(g, rehabDays, compact=false) {
+  const days = daysUntil(g.deadline);
+  const daysLabel = days < 0 ? 'Passed' : days === 0 ? 'Today' : `${days}d`;
+  const badgeCls = days < 0 ? 'past' : days <= 30 ? 'soon' : '';
+
+  let html = `<div class="goal-card${g.mobyDick?' moby-dick':''}">`;
+  if (g.mobyDick) html += `<div class="goal-label moby">🐋 Moby Dick Goal</div>`;
+  else if (!compact && days >= 0 && days <= 60) html += `<div class="goal-label urgent">⚡ Upcoming deadline</div>`;
+  html += `<div class="goal-title">${g.title}</div>`;
+  html += `<div class="goal-detail">${g.detail}</div>`;
+  html += `<div class="goal-deadline">📅 ${new Date(g.deadline+'T00:00:00Z').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',timeZone:'UTC'})}<span class="days-badge ${badgeCls}">${daysLabel}</span></div>`;
+
+  // Auto progress for rehab goal
+  if (g.autoProgress && g.id==='rehab_june' && g.status==='active') {
+    const pct = Math.min((rehabDays/30)*100, 100);
+    html += `<div class="goal-progress"><div class="goal-prog-label"><span>Hevy sessions in June</span><b>${rehabDays} / 30</b></div><div class="prog-bar-bg"><div class="prog-bar-fill green" style="width:${pct}%"></div></div></div>`;
+  }
+
+  if (g.status !== 'active' && g.result) html += `<div class="goal-result">${g.result}</div>`;
+  html += goalStatusHtml(g);
+  if (g.xPostUrl) html += `<a class="goal-xlink" href="${g.xPostUrl}" target="_blank"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg> Accountability post</a>`;
+  html += `</div>`;
+  return html;
+}
+
+function renderGoals(acts) {
+  const rehab = rehabProgress(acts);
+  const moby = GOALS.find(g => g.mobyDick);
+  const others = GOALS.filter(g => !g.mobyDick);
+  const active = others.filter(g => g.status==='active').sort((a,b) => new Date(a.deadline)-new Date(b.deadline));
+  const urgent = active.slice(0, 2);
+
+  // Top row: moby dick + 2 urgent
+  const topEl = document.getElementById('goals-top');
+  topEl.innerHTML = (moby ? goalCard(moby, rehab) : '') + urgent.map(g => goalCard(g, rehab)).join('');
+
+  // All goals grid
+  const gridEl = document.getElementById('goals-grid');
+  gridEl.innerHTML = GOALS.map(g => goalCard(g, rehab, true)).join('');
+}
+
+// ── PRs rendering ─────────────────────────────────────────────────────────────
+function renderPRs() {
+  document.getElementById('prs-row').innerHTML = PRS.map(p => `
+    <div class="pr-card">
+      <div class="pr-event">${p.event}</div>
+      <div class="pr-time">${p.time}</div>
+      <div class="pr-pace">${p.pace}</div>
+      <div class="pr-race">${p.link?`<a href="${p.link}" target="_blank" rel="noopener">${p.race}</a>`:p.race} · ${p.date}${p.note?` <span style="color:#333;font-size:10px">(${p.note})</span>`:''}</div>
+    </div>`).join('');
+}
+
+// ── Kipchoge rendering ────────────────────────────────────────────────────────
+function renderKipchoge(kip) {
+  if (!kip) return;
+  const pct = Math.min(kip.score, 100);
   document.getElementById('kip-wrap').style.display='';
-  document.getElementById('kip-score-pct').textContent=kip.score.toFixed(1)+'%';
-  document.getElementById('kip-best-label').textContent=`best: ${kip.activity.name} (${fmtPace(kip.speed)})`;
-  document.getElementById('kip-bar-fill').style.width=pct+'%';
-  document.getElementById('kip-marker').style.left=pct+'%';
-  document.getElementById('kip-your-pace').textContent=`You ${fmtPace(kip.speed)}`;
-  // modal stats
-  document.getElementById('modal-stats').innerHTML=`
-    <div class="modal-stat"><div class="ml">Your best pace</div><div class="mv">${fmtPace(kip.speed)}</div><div class="ms">${kip.activity.name} · ${fmtDist(kip.activity.distance)}</div></div>
-    <div class="modal-stat"><div class="ml">Kipchoge WR</div><div class="mv">2:51 /km</div><div class="ms">Berlin 2022 · 42.195 km</div></div>
-  `;
+  document.getElementById('kip-score-pct').textContent = kip.score.toFixed(1)+'%';
+  document.getElementById('kip-best-lbl').textContent = `${kip.label} · ${fmtPace(kip.speed)}`;
+  document.getElementById('kip-fill').style.width = pct+'%';
+  document.getElementById('kip-marker').style.left = pct+'%';
+  document.getElementById('kip-your-pace').textContent = `You ${fmtPace(kip.speed)} (${kip.detail})`;
+  document.getElementById('kip-modal-stats').innerHTML=`
+    <div class="modal-stat"><div class="ml">Your marathon</div><div class="mv">5:42:46</div><div class="ms">${kip.label}</div></div>
+    <div class="modal-stat"><div class="ml">Kipchoge WR</div><div class="mv">2:00:35</div><div class="ms">Berlin 2022</div></div>`;
 }
 
 // ── Next run ──────────────────────────────────────────────────────────────────
-function renderNextRun(nextRun){
-  if(!nextRun)return;
-  const dt=new Date(nextRun.start);
-  const label=dt.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})
-    +' · '+dt.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
-  const card=document.createElement('div');
-  card.className='next-run-card';
-  card.innerHTML=`
-    <div class="next-run-label">Next Run</div>
-    <div class="next-run-title">${nextRun.title}</div>
-    <div class="next-run-time">${label}</div>
-    ${nextRun.description?`<div class="next-run-desc">${nextRun.description}</div>`:''}
-  `;
+function renderNextRun(nextRun) {
+  if (!nextRun) return;
+  const dt = new Date(nextRun.start);
+  const label = dt.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})+' · '+dt.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  const card = document.createElement('div');
+  card.className = 'next-run-card';
+  card.innerHTML = `<div class="next-run-label">Next Run</div><div class="next-run-title">${nextRun.title}</div><div class="next-run-time">${label}</div>`;
   document.getElementById('detail-panel').prepend(card);
 }
 
@@ -406,29 +688,25 @@ const MONTHS=['January','February','March','April','May','June','July','August',
 const DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 let year,month,byDate,whoopMap,usedWhoopIds,selectedDate=null;
 
-function renderCalendar(){
-  const wrap=document.getElementById('calendar-wrap');
-  const dim=new Date(year,month+1,0).getDate();
-  const firstDow=(new Date(year,month,1).getDay()+6)%7;
-  const todayStr=new Date().toISOString().slice(0,10);
-  const mk=`${year}-${String(month+1).padStart(2,'0')}`;
+function renderCalendar() {
+  const wrap = document.getElementById('calendar-wrap');
+  const dim = new Date(year,month+1,0).getDate();
+  const firstDow = (new Date(year,month,1).getDay()+6)%7;
+  const todayStr = new Date().toISOString().slice(0,10);
+  const mk = `${year}-${String(month+1).padStart(2,'0')}`;
+  const mActs = Object.entries(byDate).filter(([d])=>d.startsWith(mk)).flatMap(([,a])=>a).filter(a=>a.device_name!=='WHOOP'||!usedWhoopIds.has(a.id));
+  const mDist = mActs.filter(a=>a.sport_type==='Run').reduce((s,a)=>s+a.distance,0);
+  const mTime = mActs.reduce((s,a)=>s+a.moving_time,0);
+  const mRuns = mActs.filter(a=>a.sport_type==='Run').length;
+  const mLifts = mActs.filter(a=>a.sport_type==='WeightTraining').length;
 
-  const mActs=Object.entries(byDate)
-    .filter(([d])=>d.startsWith(mk))
-    .flatMap(([,a])=>a)
-    .filter(a=>a.device_name!=='WHOOP'||!usedWhoopIds.has(a.id));
-  const mDist=mActs.filter(a=>a.sport_type==='Run').reduce((s,a)=>s+a.distance,0);
-  const mTime=mActs.reduce((s,a)=>s+a.moving_time,0);
-  const mRuns=mActs.filter(a=>a.sport_type==='Run').length;
-  const mLifts=mActs.filter(a=>a.sport_type==='WeightTraining').length;
-
-  let html=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+  let html=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
     <div class="month-nav">
       <button class="nav-btn" onclick="changeMonth(-1)">‹</button>
       <h2>${MONTHS[month]} ${year}</h2>
       <button class="nav-btn" onclick="changeMonth(1)">›</button>
     </div>
-    <div class="month-stats-row">
+    <div class="mstats">
       <div class="mstat"><b>${mRuns}</b> runs</div>
       <div class="mstat"><b>${mLifts}</b> lifts</div>
       ${mDist>0?`<div class="mstat"><b>${(mDist/1000).toFixed(1)} km</b></div>`:''}
@@ -439,7 +717,6 @@ function renderCalendar(){
   <div class="cal-grid">`;
 
   for(let i=0;i<firstDow;i++) html+=`<div class="cal-cell empty"></div>`;
-
   for(let d=1;d<=dim;d++){
     const ds=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const acts=(byDate[ds]||[]).filter(a=>a.device_name!=='WHOOP'||!usedWhoopIds.has(a.id));
@@ -449,129 +726,98 @@ function renderCalendar(){
     html+=`</div>`;
   }
   html+=`</div>`;
-  wrap.innerHTML=html;
+  wrap.innerHTML = html;
 }
 
-function renderDetail(ds){
-  const panel=document.getElementById('detail-panel');
-  const acts=(byDate[ds]||[]).filter(a=>a.device_name!=='WHOOP'||!usedWhoopIds.has(a.id));
-  const existingNextRun=panel.querySelector('.next-run-card');
-
-  if(!acts.length){
-    panel.innerHTML=`<div class="panel-card"><div class="panel-empty">No activities on this day</div></div>`;
-    if(existingNextRun) panel.prepend(existingNextRun);
-    return;
-  }
-
+function renderDetail(ds) {
+  const panel = document.getElementById('detail-panel');
+  const acts = (byDate[ds]||[]).filter(a=>a.device_name!=='WHOOP'||!usedWhoopIds.has(a.id));
+  const savedNextRun = panel.querySelector('.next-run-card');
+  if(!acts.length){panel.innerHTML=`<div class="panel-card"><div class="panel-empty">No activities</div></div>`;if(savedNextRun)panel.prepend(savedNextRun);return}
   const dt=new Date(ds+'T12:00:00Z');
   const label=dt.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric',timeZone:'UTC'});
   let html=`<div class="panel-card"><h3>${label}</h3><div class="sub">${acts.length} activit${acts.length>1?'ies':'y'}</div>`;
-
   for(const a of acts){
     const whoop=whoopMap.get(a.id);
     const hr=whoop||(a.has_heartrate?a:null);
     html+=`<div class="activity-row${hr?' has-hr':''}">`;
     html+=`<div class="act-title"><span>${sportIcon(a)}</span>${a.name}</div>`;
     html+=`<div class="act-meta">`;
-    if(a.distance>0) html+=`<span><b>${fmtDist(a.distance)}</b></span>`;
-    if(a.moving_time>0) html+=`<span><b>${fmtTime(a.moving_time)}</b></span>`;
-    if(a.average_speed>0&&a.sport_type==='Run') html+=`<span><b>${fmtPace(a.average_speed)}</b></span>`;
-    if(a.total_elevation_gain>0) html+=`<span><b>↑${a.total_elevation_gain}m</b></span>`;
-    html+=`<span style="color:#222">·</span><span>${a.device_name||'—'}</span></div>`;
-    if(hr){
-      const src=whoop?`WHOOP linked`:'WHOOP';
-      html+=`<div class="hr-chip">❤️ ${hr.average_heartrate} avg · ${hr.max_heartrate} max · ${src}</div>`;
-    }
-    const badges=[
-      a.pr_count>0?`<span class="badge badge-pr">${a.pr_count} PR</span>`:'',
-      a.achievement_count>0?`<span class="badge badge-ach">${a.achievement_count} ach.</span>`:'',
-      a.kudos_count>0?`<span class="badge badge-kudo">${a.kudos_count} kudos</span>`:'',
-    ].filter(Boolean);
-    if(badges.length) html+=`<div class="badges">${badges.join('')}</div>`;
+    if(a.distance>0)html+=`<span><b>${fmtDist(a.distance)}</b></span>`;
+    if(a.moving_time>0)html+=`<span><b>${fmtTime(a.moving_time)}</b></span>`;
+    if(a.average_speed>0&&a.sport_type==='Run')html+=`<span><b>${fmtPace(a.average_speed)}</b></span>`;
+    if(a.total_elevation_gain>0)html+=`<span><b>↑${a.total_elevation_gain}m</b></span>`;
+    html+=`<span style="color:#1e1e1e">·</span><span>${a.device_name||'—'}</span></div>`;
+    if(hr)html+=`<div class="hr-chip">❤️ ${hr.average_heartrate} avg · ${hr.max_heartrate} max${whoop?' · WHOOP':''}</div>`;
+    const bdg=[a.pr_count>0?`<span class="badge badge-pr">${a.pr_count} PR</span>`:'',a.achievement_count>0?`<span class="badge badge-ach">${a.achievement_count} ach.</span>`:'',a.kudos_count>0?`<span class="badge badge-kudo">${a.kudos_count} kudos</span>`:''].filter(Boolean);
+    if(bdg.length)html+=`<div class="badges">${bdg.join('')}</div>`;
     html+=`</div>`;
   }
   html+=`</div>`;
   panel.innerHTML=html;
-  if(existingNextRun) panel.prepend(existingNextRun);
+  if(savedNextRun)panel.prepend(savedNextRun);
 }
 
-function selectDay(ds){ selectedDate=ds; renderCalendar(); renderDetail(ds); }
+function selectDay(ds){selectedDate=ds;renderCalendar();renderDetail(ds)}
 function changeMonth(d){
-  month+=d;
-  if(month<0){month=11;year--;}
-  if(month>11){month=0;year++;}
-  selectedDate=null;
-  renderCalendar();
+  month+=d;if(month<0){month=11;year--;}if(month>11){month=0;year++;}
+  selectedDate=null;renderCalendar();
   const panel=document.getElementById('detail-panel');
-  const nextRun=panel.querySelector('.next-run-card');
+  const nr=panel.querySelector('.next-run-card');
   panel.innerHTML=`<div class="panel-card"><div class="panel-empty">Select a day</div></div>`;
-  if(nextRun) panel.prepend(nextRun);
-}
-
-// ── Modal ─────────────────────────────────────────────────────────────────────
-document.getElementById('kip-info-btn').addEventListener('click',()=>{
-  document.getElementById('kip-modal').classList.add('open');
-});
-function closeModal(e){ if(e.target===e.currentTarget) e.currentTarget.classList.remove('open'); }
-
-// ── Copy template ─────────────────────────────────────────────────────────────
-function copyTemplate(){
-  const text='hey shawn, would love to go for a run on [date] with you. here is my email so your ai agent can add me to the google calendar invite! - [name]\nemail: [your@email.com]';
-  navigator.clipboard.writeText(text).then(()=>{
-    const btn=document.getElementById('copy-btn');
-    btn.textContent='Copied!'; btn.classList.add('copied');
-    setTimeout(()=>{ btn.textContent='Copy'; btn.classList.remove('copied'); },2000);
-  });
-}
-
-// ── GitHub link ───────────────────────────────────────────────────────────────
-if(GITHUB_URL){
-  const el=document.getElementById('github-link');
-  el.href=GITHUB_URL; el.style.display='';
+  if(nr)panel.prepend(nr);
 }
 
 // ── Global stats ──────────────────────────────────────────────────────────────
-function renderGlobalStats(acts){
+function renderGlobalStats(acts) {
   const main=acts.filter(a=>a.device_name!=='WHOOP'||!usedWhoopIds.has(a.id));
   const dist=main.filter(a=>a.sport_type==='Run').reduce((s,a)=>s+a.distance,0);
   const time=main.reduce((s,a)=>s+a.moving_time,0);
-  const prs=main.reduce((s,a)=>s+a.pr_count,0);
   document.getElementById('global-stats').innerHTML=[
-    `<div class="gstat"><b>${(dist/1000).toFixed(1)} km</b> logged</div>`,
+    `<div class="gstat"><b>${(dist/1000).toFixed(0)} km</b> logged</div>`,
     `<div class="gstat"><b>${main.length}</b> activities</div>`,
     `<div class="gstat"><b>${fmtTime(time)}</b> total</div>`,
-    prs?`<div class="gstat"><b>${prs}</b> PRs</div>`:'',
-  ].filter(Boolean).join('');
+  ].join('');
 }
+
+// ── Modals ────────────────────────────────────────────────────────────────────
+function closeBackdrop(e,id){if(e.target===e.currentTarget)document.getElementById(id).classList.remove('open')}
+function copyRny(){
+  const text='hey shawn, would love to go for a run and yap on [date] in SF. here\'s my email so your ai agent can add me to the calendar! — [name]\nemail: [your@email.com]';
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=document.getElementById('rny-copy-btn');
+    btn.textContent='Copied!';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied')},2000);
+  });
+}
+
+if(GITHUB_URL){const el=document.getElementById('github-link');el.href=GITHUB_URL;el.style.display='';}
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 fetch('./data.json')
   .then(r=>r.json())
   .then(({activities,generated_at,next_run})=>{
     const{whoopMap:wm,usedWhoopIds:wi}=buildWhoopMap(activities);
-    whoopMap=wm; usedWhoopIds=wi;
+    whoopMap=wm;usedWhoopIds=wi;
     byDate=groupByDate(activities);
 
     renderGlobalStats(activities);
-    renderKipchoge(computeKipchoge(activities));
+    renderGoals(activities);
+    renderPRs();
+    renderMileage(activities);
+    renderKipchoge(computeKipchoge());
     renderNextRun(next_run);
 
     const latest=activities.reduce((b,a)=>a.start_date>b?a.start_date:b,'0000');
-    const d=new Date(latest);
-    year=d.getUTCFullYear(); month=d.getUTCMonth();
-    renderCalendar();
-    selectDay(latest.slice(0,10));
+    const d=new Date(latest);year=d.getUTCFullYear();month=d.getUTCMonth();
+    renderCalendar();selectDay(latest.slice(0,10));
 
     if(generated_at){
       const gd=new Date(generated_at);
-      document.getElementById('footer-updated').textContent=
-        gd.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+      document.getElementById('footer-updated').textContent=gd.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
     }
   })
-  .catch(e=>{
-    document.getElementById('calendar-wrap').innerHTML=
-      `<div style="text-align:center;padding:60px;color:#fc5200;font-size:13px">Failed to load data.json<br><small style="color:#444">${e.message}</small></div>`;
-  });
+  .catch(e=>{document.getElementById('calendar-wrap').innerHTML=`<div style="text-align:center;padding:50px;color:#fc5200;font-size:13px">Failed to load data.json<br><small style="color:#444">${e.message}</small></div>`});
 </script>
 </body>
 </html>
