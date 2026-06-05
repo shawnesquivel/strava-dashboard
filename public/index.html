@@ -227,6 +227,15 @@
     .dot-lift{background:var(--blue)}
     .dot-other{background:var(--green)}
     .dot-planned{background:transparent;border:1.5px solid var(--brand)}
+    .day-mark{font-size:12px;line-height:1}
+
+    /* Sick / rest / off days — grayed out, dashed */
+    .cal-cell.daynote{background:var(--surface-2);border-style:dashed;border-color:var(--border-3)}
+    .cal-cell.daynote .day-num{color:var(--text-4)}
+    .cal-cell.daynote.selected{background:var(--sel-bg)}
+    .note-card{background:var(--surface-2)!important;border-style:dashed!important;border-color:var(--border-3)!important}
+    .note-card-head{font-size:13px;font-weight:700;color:var(--text-2);display:flex;align-items:center;gap:7px}
+    .note-card-body{font-size:11px;color:var(--text-3);margin-top:4px}
 
     /* Planned (scheduled) activity row in detail panel */
     .planned-row{padding:9px 11px;background:var(--surface-2);border:1px dashed var(--border-3);border-radius:7px;margin-bottom:6px}
@@ -429,6 +438,7 @@
   <div class="leg-item"><div class="leg-dot" style="background:var(--green)"></div>Other</div>
   <div class="leg-item"><div class="leg-dot" style="background:transparent;border:1.5px solid var(--brand)"></div>Planned</div>
   <div class="leg-item">🏁 Goal / challenge day</div>
+  <div class="leg-item">🤒 Sick / rest day</div>
   <div class="leg-item"><div class="leg-whoop"></div>WHOOP HR linked</div>
 </div>
 
@@ -666,6 +676,24 @@ function expandPlan(){
 }
 function groupPlanByDate(items){const m={};for(const it of items){(m[it.date]=m[it.date]||[]).push(it);}return m;}
 let planList=[], planByDate={};
+
+// ── Day notes (sick / rest / travel / off days) ────────────────────────────────
+//  Each entry covers a single date ({date}) or an inclusive range ({from,to}).
+//  type drives the styling class; emoji/label/note show on the calendar + panel.
+const DAY_NOTES = [
+  { from:'2026-06-03', to:'2026-06-05', type:'sick', emoji:'🤒', label:'Sick days', note:'Out sick — rest & recover, no training' },
+];
+function expandDayNotes(){
+  const m={};
+  for(const n of DAY_NOTES){
+    const start=n.from||n.date, stop=n.to||n.date;
+    if(!start) continue;
+    let d=new Date(start+'T00:00:00Z'); const end=new Date(stop+'T00:00:00Z');
+    while(d<=end){ m[d.toISOString().slice(0,10)]=n; d=new Date(d.getTime()+86400000); }
+  }
+  return m;
+}
+let dayNotes={};
 
 const GITHUB_URL = ''; // paste GitHub URL after publishing
 
@@ -954,9 +982,10 @@ function renderCalendar() {
     const acts=(byDate[ds]||[]).filter(a=>a.device_name!=='WHOOP'||!usedWhoopIds.has(a.id));
     const dayGoals=GOALS.filter(g=>g.deadline===ds&&g.status!=='failed');
     const dayPlan=planByDate[ds]||[];
-    html+=`<div class="cal-cell${ds===todayStr?' today':''}${ds===selectedDate?' selected':''}" onclick="selectDay('${ds}')">`;
+    const note=dayNotes[ds];
+    html+=`<div class="cal-cell${ds===todayStr?' today':''}${ds===selectedDate?' selected':''}${note?' daynote':''}" onclick="selectDay('${ds}')">`;
     html+=`<div class="day-num">${d}</div>`;
-    if(acts.length||dayGoals.length||dayPlan.length) html+=`<div class="dots">${acts.map(a=>`<div class="dot ${dotClass(a)}" title="${a.name}"></div>`).join('')}${dayPlan.map(p=>`<div class="dot dot-planned" style="border-color:${planColor(p.type)}" title="Planned: ${p.title}${p.distanceKm?` ${p.distanceKm} km`:''}"></div>`).join('')}${dayGoals.map(g=>`<span class="goal-flag${g.mobyDick?' moby':''}${g.challenge?' challenge':''}" title="${g.title} — ${g.challenge?'challenge':'goal'} day">${g.emoji||'🎯'}</span>`).join('')}</div>`;
+    if(acts.length||dayGoals.length||dayPlan.length||note) html+=`<div class="dots">${note?`<span class="day-mark" title="${note.label}">${note.emoji}</span>`:''}${acts.map(a=>`<div class="dot ${dotClass(a)}" title="${a.name}"></div>`).join('')}${dayPlan.map(p=>`<div class="dot dot-planned" style="border-color:${planColor(p.type)}" title="Planned: ${p.title}${p.distanceKm?` ${p.distanceKm} km`:''}"></div>`).join('')}${dayGoals.map(g=>`<span class="goal-flag${g.mobyDick?' moby':''}${g.challenge?' challenge':''}" title="${g.title} — ${g.challenge?'challenge':'goal'} day">${g.emoji||'🎯'}</span>`).join('')}</div>`;
     html+=`</div>`;
   }
   html+=`</div>`;
@@ -969,9 +998,11 @@ function renderDetail(ds) {
   const persists = [...panel.querySelectorAll('.detail-persist')];
   const dayGoals = GOALS.filter(g=>g.deadline===ds&&g.status!=='failed');
   const planHtml = plannedHtml(planByDate[ds]||[]);
-  if(!acts.length&&!dayGoals.length&&!planHtml){panel.innerHTML=`<div class="panel-card"><div class="panel-empty">No activities</div></div>`;restorePersist(panel,persists);return}
+  const note = dayNotes[ds];
+  const noteHtml = note?`<div class="panel-card note-card"><div class="note-card-head">${note.emoji} ${note.label}</div>${note.note?`<div class="note-card-body">${note.note}</div>`:''}</div>`:'';
+  if(!acts.length&&!dayGoals.length&&!planHtml&&!noteHtml){panel.innerHTML=`<div class="panel-card"><div class="panel-empty">No activities</div></div>`;restorePersist(panel,persists);return}
   if(!acts.length){
-    let html='';
+    let html=noteHtml;
     if(dayGoals.length){
       const goalHtml=dayGoals.map(g=>`<div style="padding:8px 0;border-bottom:1px solid var(--border)"><div style="font-size:11px;font-weight:700;color:${goalColor(g)};margin-bottom:2px">${g.mobyDick?'🐋 Moby Dick':g.challenge?'🏁 Challenge':'🎯 Goal Deadline'}</div><div style="font-size:13px;font-weight:600;color:var(--text-strong)">${g.emoji?g.emoji+' ':''}${g.title}</div>${g.detail?`<div style="font-size:11px;color:var(--text-3);margin-top:1px">${g.detail}</div>`:''}</div>`).join('');
       html+=`<div class="panel-card"><h3>${dayGoals.some(g=>g.challenge)?'Challenge Day':'Goal Deadline'}</h3>${goalHtml}</div>`;
@@ -981,7 +1012,7 @@ function renderDetail(ds) {
   }
   const dt=new Date(ds+'T12:00:00Z');
   const label=dt.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric',timeZone:'UTC'});
-  let html=`<div class="panel-card"><h3>${label}</h3><div class="sub">${acts.length} activit${acts.length>1?'ies':'y'}</div>`;
+  let html=noteHtml+`<div class="panel-card"><h3>${label}</h3><div class="sub">${acts.length} activit${acts.length>1?'ies':'y'}</div>`;
   for(const a of acts){
     const whoop=whoopMap.get(a.id);
     const hr=whoop||(a.has_heartrate?a:null);
@@ -1052,6 +1083,7 @@ fetch('./data.json')
     whoopMap=wm;usedWhoopIds=wi;
     byDate=groupByDate(activities);
     planList=expandPlan();planByDate=groupPlanByDate(planList);
+    dayNotes=expandDayNotes();
 
     renderGlobalStats(activities);
     renderGoals(activities);
